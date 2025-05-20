@@ -1,8 +1,6 @@
 import { useParams } from "react-router";
 import { useState } from "react";
-import { CircularProgress, Grid, Typography } from "@mui/material";
-import ModeEditOutlineOutlinedIcon from "@mui/icons-material/ModeEditOutlineOutlined";
-import DeleteIcon from "@mui/icons-material/Delete";
+import { Alert, CircularProgress, Grid } from "@mui/material";
 import { useAuth } from "../context/authContext";
 import useFetch from "../hooks/useFetch";
 import useDelete from "../hooks/useDelete";
@@ -14,7 +12,12 @@ import FoodItemInfo from "../components/FoodItemInfo";
 export default function FoodItem() {
   const params = useParams();
 
-  const { data: fetchData, loading: fetchLoading, error: fetchError, refetch } = useFetch<FoodItem>(`/fooditems/${params.fooditem_id}`);
+  const {
+    data: fetchData,
+    loading: fetchLoading,
+    error: fetchError,
+    refetch,
+  } = useFetch<FoodItem>(`/fooditems/${params.fooditem_id}`);
   const { deletereq, error: errorDelete } = useDelete();
   const { patch, error: errorPatch } = usePatch();
   const [editMode, setEditMode] = useState(false);
@@ -37,7 +40,7 @@ export default function FoodItem() {
 
   async function handleEdit(formData: FoodItem) {
     try {
-      const result = await patch(`/fooditems/${params.fooditem_id}`, formData);
+      await patch(`/fooditems/${params.fooditem_id}`, formData);
       refetch();
       editModeToggle();
       return true;
@@ -46,14 +49,29 @@ export default function FoodItem() {
     }
   }
 
-  if (fetchLoading) return <><CircularProgress /></>;
-  if (fetchError) return <>Error: {fetchError}</>;
+  if (fetchLoading)
+    return (
+      <>
+        <CircularProgress />
+      </>
+    );
+  if (fetchError || errorDelete)
+    return (
+      <Alert severity="error">
+        Error: {fetchError} {errorDelete}
+      </Alert>
+    );
 
   if (fetchData) {
     return (
       <Grid>
         {editMode ? (
-          <FoodItemForm buttonText={"Update Product"} onSubmit={handleEdit} initialData={fetchData} responseError={errorPatch}/>
+          <FoodItemForm
+            buttonText={"Update Product"}
+            onSubmit={handleEdit}
+            initialData={fetchData}
+            responseError={errorPatch}
+          />
         ) : fetchData.creator_id === auth.userId || auth.isAdmin ? (
           <FoodItemInfo data={fetchData} onDelete={handleDelete} onEdit={editModeToggle} />
         ) : (

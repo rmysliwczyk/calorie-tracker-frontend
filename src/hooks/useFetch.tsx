@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/authContext";
+import { parseApiError } from "../utils/apiErrorParser";
 
 type FetchState<T> = {
   data: T | null;
@@ -34,19 +35,22 @@ function useFetch<T = unknown>(url: string, options?: RequestInit) {
           ...options,
           headers,
         });
+
         if (!res.ok) {
           if(res.status == 401) {
             auth.invalidateSession(`${res.status} ${res.statusText}`);
           }
-          throw new Error(`Error: ${res.status} ${res.statusText}`);
+          throw res;
         }
+
         const data: T = await res.json();
         if (!isCancelled) {
           setState({ data, loading: false, error: null });
         }
       } catch (error: any) {
+        const errorMessage = await parseApiError(error);
         if (!isCancelled) {
-          setState({ data: null, loading: false, error: error.message || "Unknown error" });
+          setState({ data: null, loading: false, error: errorMessage || "Unknown error" });
         }
       }
     };

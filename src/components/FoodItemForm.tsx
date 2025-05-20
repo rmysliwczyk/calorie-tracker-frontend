@@ -1,6 +1,6 @@
 import { Alert, Button, ClickAwayListener, Grid, InputAdornment, Modal, Paper, TextField } from "@mui/material";
 import QrCodeIcon from "@mui/icons-material/QrCode";
-import { useState, type ChangeEvent } from "react";
+import { useEffect, useState, type ChangeEvent } from "react";
 import BarcodeScanner from "./BarcodeScannerCustom";
 
 interface FoodItemFormProps {
@@ -36,28 +36,40 @@ export default function FoodItemForm(props: FoodItemFormProps) {
     barcode: "",
   });
 
+  // Checking individual errors, when error object changes,
+  // and setting a general error flag if there are any
+  useEffect(function() {
+    let hadErrors = false;
+    Object.entries(errors).forEach(function(element) {
+      if (element[1] !== "") {
+        hadErrors = true;
+      }
+    })
+    if(hadErrors === false) {
+      setAlertMessage("");
+      setContainsErrors(false);
+    } else {
+      setContainsErrors(true);
+    }
+  },[errors])
+
   function handleChange(event: ChangeEvent<HTMLInputElement>) {
     const inputName = event.target.name;
     const value = event.target.value;
     setInputs((prevInputs) => ({ ...prevInputs, [inputName]: value }));
     setErrors((prevErrors) => ({ ...prevErrors, [inputName]: "" }));
 
-    if (["calories", "fats", "carbs", "protein", "barcode"].includes(inputName)) {
+    if (["calories", "fats", "carbs", "protein", "barcode", "portion_weight"].includes(inputName)) {
       if (isNaN(Number(value))) {
         setErrors((prevErrors) => ({
           ...prevErrors,
           [inputName]: "Field must be a number",
         }));
-        setContainsErrors(true);
       } else if (Number(value) < 0) {
         setErrors((prevErrors) => ({
           ...prevErrors,
           [inputName]: "Field value must be positive",
         }));
-        setContainsErrors(true);
-      } else {
-        setContainsErrors(false);
-        setAlertMessage("")
       }
     }
   }

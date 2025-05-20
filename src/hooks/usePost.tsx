@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../context/authContext";
+import { parseApiError } from "../utils/apiErrorParser";
 
 type PostState<T> = {
   data: T | null;
@@ -15,7 +16,7 @@ function usePost<T = unknown>() {
     loading: false,
   });
 
-  const post = async (url: string, payload: any, options?: RequestInit): Promise<T> => {
+  const post = async (url: string, payload: any, options?: RequestInit): Promise<T | null> => {
     setState({ data: null, error: null, loading: true });
 
     try {
@@ -36,15 +37,16 @@ function usePost<T = unknown>() {
         if (res.status == 401) {
           invalidateSession(`${res.status} ${res.statusText}`);
         }
-        throw new Error(`Error: ${res.status} ${res.statusText}`);
+        throw res;
       }
 
       const data: T = await res.json();
       setState({ data, error: null, loading: false });
       return data;
     } catch (err: any) {
-      setState({ data: null, error: err.message || "Unknown error", loading: false });
-      throw err;
+      const errorMessage = await parseApiError(err);
+      setState({ data: null, error: errorMessage || "Unknown error", loading: false });
+      return null;
     }
   };
 

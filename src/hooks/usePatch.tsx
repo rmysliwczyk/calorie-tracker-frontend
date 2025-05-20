@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../context/authContext";
+import { parseApiError } from "../utils/apiErrorParser";
 
 type PatchState<T> = {
   data: T | null;
@@ -36,14 +37,15 @@ function usePatch<T = unknown>() {
         if (res.status == 401) {
           invalidateSession(`${res.status} ${res.statusText}`);
         }
-        throw new Error(`Error: ${res.status} ${res.statusText}`);
+        throw res
       }
 
       const data: T = await res.json();
       setState({ data, loading: false, error: null });
       return data;
     } catch (err: any) {
-      setState({ data: null, loading: false, error: err.message || "Unknown error" });
+      const errorMessage = await parseApiError(err);
+      setState({ data: null, loading: false, error: errorMessage || "Unknown error" });
       throw err;
     }
   };

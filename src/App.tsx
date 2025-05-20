@@ -9,6 +9,8 @@ import PrivateRoute from "./components/PrivateRoute";
 import ResponsiveAppBar from "./components/AppBar";
 import AddFoodItem from "./pages/AddFoodItem";
 import { ToastContainer } from "react-toastify";
+import Meals from "./pages/Meals";
+import Profile from "./pages/Profile";
 
 function App() {
   return (
@@ -21,6 +23,8 @@ function App() {
             <Route path="/logout" element={<Auth logout={true} />} />
             <Route element={<PrivateRoute />}>
               <Route path="/about" element={<About />} />
+              <Route path="/meals" element={<Meals />} />
+              <Route path="/profile" element={<Profile />} />
               <Route path="/fooditems" element={<FoodItems />} />
               <Route path="/fooditems/add" element={<AddFoodItem />} />
               <Route path="/fooditems/:fooditem_id" element={<FoodItem />} />

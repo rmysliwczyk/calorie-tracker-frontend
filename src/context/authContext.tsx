@@ -19,8 +19,8 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string>(localStorage.getItem("token") || "");
   const [userId, setUserId] = useState<number | null>(Number(localStorage.getItem("userId")) || null);
   const [isAdmin, setIsAdmin] = useState<boolean | null>(Boolean(localStorage.getItem("isAdmin") || null));
-  const navigate = useNavigate();
   const [isValidated, setIsValidated] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   async function validateToken() {
     if (isValidated || !token) return;
