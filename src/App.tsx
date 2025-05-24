@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router";
 import "./App.css";
-import FoodItems from "./pages/FoodItems";
+import FoodItems from "./pages/Food";
 import FoodItem from "./pages/FoodItem";
 import About from "./pages/About";
 import Auth from "./pages/Auth";
@@ -11,6 +11,7 @@ import AddFoodItem from "./pages/AddFoodItem";
 import { ToastContainer } from "react-toastify";
 import Meals from "./pages/Meals";
 import Profile from "./pages/Profile";
+import FoodCollection from "./pages/FoodCollection";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
               <Route path="/fooditems" element={<FoodItems />} />
               <Route path="/fooditems/add" element={<AddFoodItem />} />
               <Route path="/fooditems/:fooditem_id" element={<FoodItem />} />
+              <Route path="/foodcollections/:foodcollection_id" element={<FoodCollection />} />
             </Route>
           </Route>
         </Routes>

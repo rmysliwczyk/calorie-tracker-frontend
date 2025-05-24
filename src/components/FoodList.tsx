@@ -8,10 +8,15 @@ import { Alert, Box, CircularProgress, ClickAwayListener, Divider, Grid, ListIte
 import { useNavigate } from "react-router";
 import BarcodeScanner from "./BarcodeScannerCustom";
 
-export default function FoodItemsList({ onSelectProduct }: { onSelectProduct: Function }) {
+type FoodListProps = {
+  onSelectProduct(selectedId: number): void,
+  allowAdd: boolean
+}
+
+export default function FoodList(props: FoodListProps) {
   const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState("");
-  const [searchUrl, setSearchUrl] = useState<string>(`/fooditems/?offset=0&limit=100&name=`);
+  const [searchUrl, setSearchUrl] = useState<string>(`/food/combined/?offset=0&limit=100&name=`);
   const { data, error, loading } = useFetch<FoodItem[]>(searchUrl);
   const [searchInProgress, setSearchInProgress] = useState(false);
   const [isScannerOpen, setIsScannerOpen] = useState<boolean>(false);
@@ -20,7 +25,7 @@ export default function FoodItemsList({ onSelectProduct }: { onSelectProduct: Fu
     function () {
       setSearchInProgress(true);
       const timeOut = setTimeout(async function () {
-        setSearchUrl(`/fooditems/?offset=0&limit=100&name=${searchValue}`);
+        setSearchUrl(`/food/combined/?offset=0&limit=100&name=${searchValue}`);
       }, 1000);
 
       return function () {
@@ -48,7 +53,7 @@ export default function FoodItemsList({ onSelectProduct }: { onSelectProduct: Fu
   }
 
   function handleScanSuccess(decodedText: string) {
-    setSearchUrl(`/fooditems/?offset=0&limit=100&barcode=${decodedText}`);
+    setSearchUrl(`/food/combined/?offset=0&limit=100&barcode=${decodedText}`);
     setIsScannerOpen(false);
   }
 
@@ -58,6 +63,7 @@ export default function FoodItemsList({ onSelectProduct }: { onSelectProduct: Fu
         placeholder="Enter food item name"
         inputValue={searchValue}
         onSearch={handleSearchInputChange}
+        allowAdd={props.allowAdd}
         onAddNavigation={function () {
           navigate("/fooditems/add");
         }}
@@ -84,7 +90,9 @@ export default function FoodItemsList({ onSelectProduct }: { onSelectProduct: Fu
                   <ListItem
                     key={element.id}
                     onClick={function () {
-                      onSelectProduct(element.id);
+                      if (element.id !== undefined) {
+                        props.onSelectProduct(element.id);
+                      }
                     }}
                   >
                     <ListItemText sx={{ textAlign: "center" }}>

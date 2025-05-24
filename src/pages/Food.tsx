@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router";
-import FoodItemsList from "../components/FoodItemsList";
+import FoodList from "../components/FoodList";
 
 export default function FoodItems() {
   const navigate = useNavigate();
@@ -7,5 +7,5 @@ export default function FoodItems() {
     navigate(`/fooditems/${selectedFoodItemId}`);
   }
 
-  return <FoodItemsList onSelectProduct={handleSelectFoodItem} />;
+  return <FoodList onSelectProduct={handleSelectFoodItem} />;
 }
