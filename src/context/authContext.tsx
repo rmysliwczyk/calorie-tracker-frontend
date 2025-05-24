@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import { parseApiError } from "../utils/apiErrorParser";
@@ -119,9 +119,8 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth(): AuthContext {
   const context = useContext(AuthContext);
-  useEffect(function() {
   if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");
-  }},[context]);
+  }
   return context;
 }
