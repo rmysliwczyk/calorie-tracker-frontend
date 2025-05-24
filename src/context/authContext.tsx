@@ -1,6 +1,7 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
+import { parseApiError } from "../utils/apiErrorParser";
 
 export interface AuthContext {
   userId: number | null;
@@ -56,6 +57,11 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         },
         body: params,
       });
+
+      if(!response.ok) {
+        throw response
+      }
+
       const receivedJson = await response.json();
       if (receivedJson.access_token) {
         setToken(receivedJson.access_token);
@@ -67,6 +73,11 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
+
+        if(!responseUser.ok) {
+          throw responseUser
+        }
+
         const receivedJsonUser = await responseUser.json();
         setUserId(receivedJsonUser.id);
         localStorage.setItem("userId", receivedJsonUser.id);
@@ -74,11 +85,10 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.setItem("isAdmin", receivedJsonUser.is_admin);
         navigate("/fooditems");
       } else {
-        throw new Error(receivedJson.detail);
+        throw new Error("No token received in response")
       }
-    } catch (err) {
-      console.error(err);
-      throw err;
+    } catch (err: any) {
+      throw new Error(await parseApiError(err));
     }
   }
 
@@ -109,8 +119,9 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth(): AuthContext {
   const context = useContext(AuthContext);
+  useEffect(function() {
   if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");
-  }
+  }},[context]);
   return context;
 }
