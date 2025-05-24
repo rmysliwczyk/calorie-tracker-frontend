@@ -1,16 +1,16 @@
-import { Divider, Grid, Paper, Typography } from "@mui/material";
+import { Card, Divider, Grid, Paper, Typography } from "@mui/material";
 import EditSquareIcon from '@mui/icons-material/EditSquare';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-interface FoodItemInfoProps {
-  data: FoodItem;
+interface FoodCollectionInfoProps {
+  data: FoodCollection;
   onEdit?: () => void;
   onDelete?: () => void;
 }
 
-export default function FoodItemInfo(props: FoodItemInfoProps) {
+export default function FoodCollectionInfo(props: FoodCollectionInfoProps) {
   return (
-    <Grid container spacing={1} component={Paper} elevation={3} sx={{ padding: "5px" }}>
+    <Grid container spacing={1} component={Paper} elevation={3} sx={{ padding: "10px" }}>
       <Grid size={12} sx={{ padding: "10px" }}>
         <Typography variant="h4">{props.data.name}</Typography>
         <Divider variant="middle" />
@@ -81,6 +81,17 @@ export default function FoodItemInfo(props: FoodItemInfoProps) {
           )}
         </Grid>
       )}
+      <Grid size={12} sx={{ padding: "10px" }}>
+        <Divider variant="middle" />
+      </Grid>
+      {props.data.ingredients?.map((ingredient) => 
+      <Grid key={ingredient.food_item_id} size={12}>
+        <Card variant="outlined">
+          <Typography variant="h6">{ingredient.amount}g of {ingredient.food_item.name}</Typography>
+        </Card>
+      </Grid>)
+      }
+      
     </Grid>
   );
 }

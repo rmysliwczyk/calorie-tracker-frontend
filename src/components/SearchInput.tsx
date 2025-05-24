@@ -1,28 +1,25 @@
 import { Button, Grid, TextField } from "@mui/material";
 
-export default function SearchInput({
-  placeholder,
-  inputValue,
-  onSearch,
-  onAddNavigation,
-  onScanNavigation,
-}: {
-  placeholder: string;
-  inputValue: string;
-  onSearch: any;
-  onAddNavigation: Function;
-  onScanNavigation: Function;
-}) {
+type SearchInputProps = {
+  placeholder: string,
+  inputValue: string,
+  onSearch(searchText: string): void,
+  allowAdd: boolean,
+  onAddNavigation(): void,
+  onScanNavigation(): void
+}
+
+export default function SearchInput(props: SearchInputProps) {
   return (
     <Grid container>
       <Grid size={8}>
         <TextField
           type="text"
           id="search-input"
-          placeholder={placeholder}
-          value={inputValue}
+          placeholder={props.placeholder}
+          value={props.inputValue}
           onInput={function (e) {
-            onSearch((e.target as HTMLTextAreaElement).value);
+            props.onSearch((e.target as HTMLTextAreaElement).value);
           }}
         />
       </Grid>
@@ -30,7 +27,7 @@ export default function SearchInput({
         <Button
           sx={{ height: "55px" }}
           onClick={function () {
-            onAddNavigation();
+            props.onAddNavigation();
           }}
         >
           Add
@@ -40,7 +37,7 @@ export default function SearchInput({
         <Button
           sx={{ height: "55px" }}
           onClick={function () {
-            onScanNavigation();
+            props.onScanNavigation();
           }}
         >
           Scan

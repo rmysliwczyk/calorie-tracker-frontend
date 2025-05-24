@@ -14,5 +14,5 @@ export default function FoodItems() {
     }
   }
 
-  return <FoodList allowAdd={true} onSelectProduct={handleSelectFoodItem} />;
+  return <FoodList foodItemsOnly={false} allowAdd={true} onSelectProduct={handleSelectFoodItem} />;
 }

@@ -12,6 +12,10 @@ import { ToastContainer } from "react-toastify";
 import Meals from "./pages/Meals";
 import Profile from "./pages/Profile";
 import Todo from "./pages/Todo";
+import FoodCollection from "./pages/FoodCollection";
+import FoodCollectionForm from "./components/FoodCollectionForm";
+import AddFoodCollection from "./pages/AddFoodCollection";
+import AddMeal from "./pages/AddMeal";
 
 function App() {
   return (
@@ -25,11 +29,14 @@ function App() {
             <Route element={<PrivateRoute />}>
               <Route path="/about" element={<About />} />
               <Route path="/meals" element={<Meals />} />
+              <Route path="/meals/:mealId" element={<Todo />} />
+              <Route path="/meals/add" element={<AddMeal />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/fooditems" element={<FoodItems />} />
               <Route path="/fooditems/add" element={<AddFoodItem />} />
               <Route path="/fooditems/:fooditem_id" element={<FoodItem />} />
-              <Route path="/foodcollections/:foodcollection_id" element={<Todo />} />
+              <Route path="/foodcollections/:foodcollection_id" element={<FoodCollection />} />
+              <Route path="/foodcollections/add" element={<AddFoodCollection />} />
             </Route>
           </Route>
         </Routes>

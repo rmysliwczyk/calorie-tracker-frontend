@@ -4,19 +4,35 @@ import ListItem from "@mui/material/ListItem";
 import SearchInput from "./SearchInput";
 import useFetch from "../hooks/useFetch";
 
-import { Alert, Box, CircularProgress, ClickAwayListener, Divider, Grid, ListItemText, Modal, Paper, Typography } from "@mui/material";
+import {
+  Alert,
+  Box,
+  CircularProgress,
+  ClickAwayListener,
+  Divider,
+  Grid,
+  ListItemText,
+  Modal,
+  Paper,
+  Typography,
+} from "@mui/material";
 import { useNavigate } from "react-router";
 import BarcodeScanner from "./BarcodeScannerCustom";
 
 type FoodListProps = {
-  onSelectProduct(selectedId: number, foodType: string): void,
-  allowAdd: boolean
-}
+  onSelectProduct(selectedId: number, foodType: string | undefined): void;
+  allowAdd: boolean;
+  foodItemsOnly: boolean;
+};
 
 export default function FoodList(props: FoodListProps) {
   const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState("");
-  const [searchUrl, setSearchUrl] = useState<string>(`/food/combined/?offset=0&limit=100&name=`);
+  const [searchUrl, setSearchUrl] = useState<string>(
+    props.foodItemsOnly
+      ? `/fooditems/?offset=0&limit=100&name=`
+      : `/food/combined/?offset=0&limit=100&name=`
+  );
   const { data, error } = useFetch<Food[]>(searchUrl);
   const [searchInProgress, setSearchInProgress] = useState(false);
   const [isScannerOpen, setIsScannerOpen] = useState<boolean>(false);
@@ -25,7 +41,11 @@ export default function FoodList(props: FoodListProps) {
     function () {
       setSearchInProgress(true);
       const timeOut = setTimeout(async function () {
-        setSearchUrl(`/food/combined/?offset=0&limit=100&name=${searchValue}`);
+        setSearchUrl(
+          props.foodItemsOnly
+            ? `/fooditems/?offset=0&limit=100&name=${searchValue}`
+            : `/food/combined/?offset=0&limit=100&name=${searchValue}`
+        );
       }, 1000);
 
       return function () {
@@ -53,7 +73,11 @@ export default function FoodList(props: FoodListProps) {
   }
 
   function handleScanSuccess(decodedText: string) {
-    setSearchUrl(`/food/combined/?offset=0&limit=100&barcode=${decodedText}`);
+    setSearchUrl(
+      props.foodItemsOnly
+        ? `/fooditems/?offset=0&limit=100&barcode=${decodedText}`
+        : `/food/combined/?offset=0&limit=100&barcode=${decodedText}`
+    );
     setIsScannerOpen(false);
   }
 
@@ -90,7 +114,7 @@ export default function FoodList(props: FoodListProps) {
                   <ListItem
                     key={`${element.type} ${element.id}`}
                     onClick={function () {
-                      if (element.id !== undefined && element.type !== undefined) {
+                      if (element.id !== undefined) {
                         props.onSelectProduct(element.id, element.type);
                       }
                     }}
@@ -115,7 +139,7 @@ export default function FoodList(props: FoodListProps) {
                   height: "80vh",
                   justifyContent: "center",
                   alignItems: "center",
-                  overflow: "hidden"
+                  overflow: "hidden",
                 }}
               >
                 <BarcodeScanner qrCodeSuccessCallback={handleScanSuccess} />
