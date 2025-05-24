@@ -9,7 +9,7 @@ import { useNavigate } from "react-router";
 import BarcodeScanner from "./BarcodeScannerCustom";
 
 type FoodListProps = {
-  onSelectProduct(selectedId: number): void,
+  onSelectProduct(selectedId: number, foodType: string): void,
   allowAdd: boolean
 }
 
@@ -17,7 +17,7 @@ export default function FoodList(props: FoodListProps) {
   const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState("");
   const [searchUrl, setSearchUrl] = useState<string>(`/food/combined/?offset=0&limit=100&name=`);
-  const { data, error, loading } = useFetch<FoodItem[]>(searchUrl);
+  const { data, error } = useFetch<Food[]>(searchUrl);
   const [searchInProgress, setSearchInProgress] = useState(false);
   const [isScannerOpen, setIsScannerOpen] = useState<boolean>(false);
 
@@ -86,12 +86,12 @@ export default function FoodList(props: FoodListProps) {
           <List>
             {data?.map(function (element) {
               return (
-                <Box key={element.id}>
+                <Box key={`${element.type} ${element.id}`}>
                   <ListItem
-                    key={element.id}
+                    key={`${element.type} ${element.id}`}
                     onClick={function () {
-                      if (element.id !== undefined) {
-                        props.onSelectProduct(element.id);
+                      if (element.id !== undefined && element.type !== undefined) {
+                        props.onSelectProduct(element.id, element.type);
                       }
                     }}
                   >
