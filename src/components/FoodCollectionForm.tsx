@@ -1,97 +1,94 @@
-import {
-  Alert,
-  Box,
-  Button,
-  Card,
-  ClickAwayListener,
-  Container,
-  Divider,
-  Grid,
-  InputAdornment,
-  Modal,
-  Paper,
-  TextField,
-  Typography,
-} from "@mui/material";
-import QrCodeIcon from "@mui/icons-material/QrCode";
-import { useEffect, useState, type ChangeEvent } from "react";
-import BarcodeScanner from "./BarcodeScannerCustom";
-import AddIcon from "@mui/icons-material/Add";
+import { Alert, Button, Grid, InputAdornment, Paper, TextField, Typography } from "@mui/material";
+import { useEffect, useState } from "react";
 import FoodList from "./FoodList";
 import useFetch from "../hooks/useFetch";
-import { data } from "react-router";
-import { Decimal } from "decimal.js"; // If you want to match backend precision, otherwise use Number
+import { Decimal } from "decimal.js";
+import { Controller, useForm, useWatch, type SubmitHandler } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 interface FoodCollectionFormProps {
   buttonText: string;
-  onSubmit: (formData: FoodCollection) => void;
+  onSubmit: SubmitHandler<FoodCollectionFormSchema>;
   initialData?: FoodCollection;
   responseError?: string | null;
 }
 
+const ingredientSchema = z.object({
+  food_item_id: z.number(),
+  food_item: z.any(),
+  amount: z.coerce
+    .number({
+      required_error: "Amount is required",
+      invalid_type_error: "Amount must be a number",
+    })
+    .gte(0.1),
+});
+
+const foodCollectionFormSchema = z.object({
+  name: z.string(),
+  calories: z.number().gte(0.1),
+  fats: z.number().gte(0.1),
+  carbs: z.number().gte(0.1),
+  protein: z.number().gte(0.1),
+  portion_weight: z.coerce.number().nonnegative(),
+  ingredients: z.array(ingredientSchema).min(1, { message: "At least one ingredient is required" }),
+});
+
+export type FoodCollectionFormSchema = z.infer<typeof foodCollectionFormSchema>;
+
 export default function FoodCollectionForm(props: FoodCollectionFormProps) {
   const [isSelectingFood, setIsSelectingFood] = useState(false);
-  const [containsErrors, setContainsErrors] = useState(false);
-  const [isScannerOpen, setIsScannerOpen] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
   const [searchUrl, setSearchUrl] = useState("");
-  const { data: foodData, error, loading } = useFetch<FoodItem>(searchUrl);
-
-  const [inputs, setInputs] = useState<FoodCollection>({
-    name: props.initialData?.name || "",
-    calories: props.initialData?.calories || 0,
-    fats: props.initialData?.fats || 0,
-    carbs: props.initialData?.carbs || 0,
-    protein: props.initialData?.protein || 0,
-    portion_weight: props.initialData?.portion_weight || 0,
-    barcode: props.initialData?.barcode || "",
-    ingredients: props.initialData?.ingredients || [],
+  const { data: foodData, error: foodFetchError } = useFetch<FoodItem>(searchUrl);
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    getValues,
+    setValue,
+  } = useForm<FoodCollectionFormSchema>({
+    defaultValues: {
+      name: props.initialData?.name || "",
+      calories: props.initialData?.calories || 0,
+      fats: props.initialData?.fats || 0,
+      carbs: props.initialData?.carbs || 0,
+      protein: props.initialData?.protein || 0,
+      portion_weight: props.initialData?.portion_weight || ("" as unknown as number),
+      ingredients: props.initialData?.ingredients || [],
+    },
+    resolver: zodResolver(foodCollectionFormSchema),
   });
 
-  function handleChange(event: ChangeEvent<HTMLInputElement>) {
-    const inputName = event.target.name;
-    const value = event.target.value;
-    setInputs((prevInputs) => ({ ...prevInputs, [inputName]: value }));
-  }
-
-  function handleScannerToggle() {
-    setIsScannerOpen((prevState) => !prevState);
-  }
-
-  function handleScanSuccess(decodedText: string) {
-    setInputs((prevInputs) => ({ ...prevInputs, barcode: decodedText }));
-    setIsScannerOpen(false);
-  }
-
   async function handleSelectFoodItem(selectedFoodItemId: number) {
-    console.log(selectedFoodItemId);
     setSearchUrl(`/fooditems/${selectedFoodItemId}`);
     setIsSelectingFood(false);
   }
 
   useEffect(
     function () {
-      if (foodData !== null) {
-        setInputs((prevState) => {
-          const exists = (prevState.ingredients ?? []).some(
-            (ingredient) => ingredient.food_item_id === Number(foodData.id)
-          );
-          if (exists) return prevState;
-          return {
-            ...prevState,
-            ingredients: [
-              ...(prevState.ingredients ?? []),
-              { food_item_id: Number(foodData.id), food_item: foodData, amount: 1 },
-            ],
-          };
-        });
+      if (foodData) {
+        const prev = getValues("ingredients") as Ingredient[];
+        const exists = prev.some((ingredient) => ingredient.food_item_id === foodData.id);
+        if (!exists) {
+          setValue("ingredients", [
+            ...prev,
+            {
+              food_item_id: foodData.id,
+              food_item: foodData,
+              amount: 1,
+            },
+          ]);
+        }
       }
     },
     [foodData]
   );
 
+  const ingredients = useWatch({ control, name: "ingredients" });
+
   useEffect(() => {
-    if (!inputs.ingredients || inputs.ingredients.length === 0) return;
+    if (!ingredients || ingredients.length === 0) return;
 
     let nutritionalValues = {
       calories: new Decimal(0),
@@ -101,7 +98,7 @@ export default function FoodCollectionForm(props: FoodCollectionFormProps) {
       total_weight: new Decimal(0),
     };
 
-    for (const ingredient of inputs.ingredients) {
+    for (const ingredient of ingredients) {
       const amount = new Decimal(ingredient.amount || 0);
       const multiplier = amount.div(100);
 
@@ -128,166 +125,200 @@ export default function FoodCollectionForm(props: FoodCollectionFormProps) {
       return Number(val.toFixed(2));
     }
 
-    setInputs((prev) => ({
-      ...prev,
-      calories: round(nutritionalValues.calories.div(totalWeight).times(100)),
-      fats: round(nutritionalValues.fats.div(totalWeight).times(100)),
-      carbs: round(nutritionalValues.carbs.div(totalWeight).times(100)),
-      protein: round(nutritionalValues.protein.div(totalWeight).times(100)),
-    }));
-  }, [inputs.ingredients]);
-
-  function handleIngredientAmountChange(index: number, value: number) {
-    setInputs((prev) => ({
-      ...prev,
-      ingredients: prev.ingredients?.map((ingredient, i) =>
-        i === index ? { ...ingredient, amount: value } : ingredient
-      ),
-    }));
-  }
+    setValue("calories", round(nutritionalValues.calories.div(totalWeight).times(100)));
+    setValue("fats", round(nutritionalValues.fats.div(totalWeight).times(100)));
+    setValue("carbs", round(nutritionalValues.carbs.div(totalWeight).times(100)));
+    setValue("protein", round(nutritionalValues.protein.div(totalWeight).times(100)));
+  }, [ingredients]);
 
   if (!isSelectingFood) {
     return (
-      <Box
-        component={"form"}
-        onSubmit={function (event) {
-          event.preventDefault();
-          if (!containsErrors) {
-            props.onSubmit(inputs);
-          } else {
-            setAlertMessage("Form contains errors");
-          }
-        }}
-      >
-        <Grid container spacing={1} component={Paper} elevation={3} sx={{ padding: "10px" }}>
-          <Grid size={12} sx={{ padding: "10px" }}>
-            <TextField
-              id="name"
+      <Paper elevation={3} sx={{ padding: "20px", marginInline: "10px" }}>
+        <Grid
+          container
+          component="form"
+          autoComplete="off"
+          onSubmit={handleSubmit(props.onSubmit)}
+          sx={{ display: "flex", alignItems: "center" }}
+          spacing={2}
+        >
+          <Grid size={12}>
+            <Controller
               name="name"
-              label="Name"
-              variant="outlined"
-              value={inputs.name}
-              onChange={handleChange}
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  error={Boolean(errors.name)}
+                  helperText={errors.name?.message}
+                  label="Name"
+                  variant="outlined"
+                  fullWidth
+                />
+              )}
             />
           </Grid>
-          <Grid size={12} sx={{ padding: "10px" }}>
-            <Divider variant="middle" />
+          <Grid size={6}>
+            <Controller
+              name="calories"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  value={field.value}
+                  error={Boolean(errors.calories)}
+                  helperText={errors.calories?.message}
+                  label="Calories"
+                  variant="outlined"
+                  fullWidth
+                  slotProps={{
+                    input: {
+                      endAdornment: <InputAdornment position="end">kcal</InputAdornment>,
+                    },
+                  }}
+                />
+              )}
+            />
           </Grid>
-          <Grid container size={6} sx={{ padding: "10px" }}>
-            <Grid size={12}>
-              <Typography variant="h5">Calories</Typography>
-            </Grid>
-            <Grid size={12}>
-              {inputs.calories} <Typography variant="caption">kcal/100g</Typography>
-            </Grid>
+          <Grid size={6}>
+            <Controller
+              name="portion_weight"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  error={Boolean(errors.portion_weight)}
+                  helperText={errors.portion_weight?.message}
+                  label="Portion weight"
+                  variant="outlined"
+                  fullWidth
+                  slotProps={{
+                    input: {
+                      endAdornment: <InputAdornment position="end">g</InputAdornment>,
+                    },
+                  }}
+                />
+              )}
+            />
           </Grid>
-          <Grid container size={6} sx={{ padding: "10px" }}>
-            <TextField
-            type="number"
-            id="portion-weight"
-            name="portion_weight"
-            label="Portion weight"
-            variant="outlined"
-            value={inputs.portion_weight}
-            onChange={handleChange}
-            fullWidth
-            slotProps={{
-              input: {
-                endAdornment: <InputAdornment position="end">g</InputAdornment>,
-              },
-            }}
-          />
+          <Grid size={4}>
+            <Controller
+              name="fats"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  value={field.value}
+                  error={Boolean(errors.fats)}
+                  helperText={errors.fats?.message}
+                  label="Fat"
+                  variant="outlined"
+                  fullWidth
+                  slotProps={{
+                    input: {
+                      endAdornment: <InputAdornment position="end">g</InputAdornment>,
+                    },
+                  }}
+                />
+              )}
+            />
           </Grid>
-          <Grid size={12} sx={{ padding: "10px" }}>
-            <Divider variant="middle" />
+          <Grid size={4}>
+            <Controller
+              name="carbs"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  value={field.value}
+                  error={Boolean(errors.carbs)}
+                  helperText={errors.carbs?.message}
+                  label="Carbs"
+                  variant="outlined"
+                  fullWidth
+                  slotProps={{
+                    input: {
+                      endAdornment: <InputAdornment position="end">g</InputAdornment>,
+                    },
+                  }}
+                />
+              )}
+            />
           </Grid>
-          <Grid container size={4} sx={{ padding: "10px" }}>
-            <Grid size={12}>
-              <Typography variant="h5">Fat</Typography>
-            </Grid>
-            <Grid size={12}>
-              {inputs.fats} <Typography variant="caption">g/100g</Typography>
-            </Grid>
+          <Grid size={4}>
+            <Controller
+              name="protein"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  value={field.value}
+                  error={Boolean(errors.protein)}
+                  helperText={errors.protein?.message}
+                  label="Protein"
+                  variant="outlined"
+                  fullWidth
+                  slotProps={{
+                    input: {
+                      endAdornment: <InputAdornment position="end">g</InputAdornment>,
+                    },
+                  }}
+                />
+              )}
+            />
           </Grid>
-          <Grid container size={4} sx={{ padding: "10px" }}>
+          {getValues("ingredients").length > 0 && (
             <Grid size={12}>
-              <Typography variant="h5">Carbs</Typography>
-            </Grid>
-            <Grid size={12}>
-              {inputs.carbs} <Typography variant="caption">g/100g</Typography>
-            </Grid>
-          </Grid>
-          <Grid container size={4} sx={{ padding: "10px" }}>
-            <Grid size={12}>
-              <Typography variant="h5">Protein</Typography>
-            </Grid>
-            <Grid size={12}>
-              {inputs.protein} <Typography variant="caption">g/100g</Typography>
-            </Grid>
-          </Grid>
-          <Grid size={12} sx={{ padding: "10px" }}>
-            <Divider variant="middle" />
-          </Grid>
-
-          <Grid
-            container
-            size={12}
-            sx={{ padding: "10px", justifyContent: "center", alignItems: "center" }}
-          >
-            <Grid
-              container
-              component={"button"}
-              direction={"column"}
-              onClick={function () {
-                setIsSelectingFood((prevState) => !prevState);
-              }}
-              spacing={0}
-              size={3}
-              sx={{ height: "100%" }}
-            >
-              <Grid size={12}>
-                <AddIcon color="primary" fontSize="large" />
-              </Grid>
-              <Grid size={12}>
-                <Typography variant="subtitle2" color="primary">
-                  Add
-                </Typography>
-              </Grid>
-              <Grid size={12}>
-                <Typography variant="subtitle2" color="primary">
-                  ingredient
-                </Typography>
-              </Grid>
-            </Grid>
-            <Grid component={"button"} type="submit" size={3} sx={{ height: "100%" }}>
-              <Typography variant="button" color="primary">
+              <Button type="submit" color="primary" variant="contained">
                 {props.buttonText}
-              </Typography>
+              </Button>
             </Grid>
+          )}
+          {props.responseError && (
+            <Grid size={12}>
+              <Alert severity="error">{props.responseError}</Alert>
+            </Grid>
+          )}
+          <Grid size={12}>
+            <Button variant="outlined" onClick={() => setIsSelectingFood(true)}>
+              Add Food Item To Recipe
+            </Button>
           </Grid>
-
-          <Grid size={12} sx={{ padding: "10px" }}>
-            <Divider variant="middle" />
-          </Grid>
-          {inputs.ingredients?.map((ingredient, idx) => (
-            <Grid key={ingredient.food_item_id} size={12}>
-              <Card variant="outlined">
-                <Typography variant="h6">
-                  <TextField
-                    type="number"
-                    value={ingredient.amount}
-                    onChange={(e) =>
-                      handleIngredientAmountChange(idx, Number(e.target.value))
-                    }
-                    sx={{ width: 80, mr: 1 }}
+          {foodFetchError ? (
+            <Grid size={12}>
+              <Alert severity="error">{foodFetchError}</Alert>
+            </Grid>
+          ) : (
+            ingredients.map((ingredient, index) => (
+              <Grid container size={12} key={ingredient.food_item_id} sx={{ alignItems: "center" }}>
+                <Grid size={6}>
+                  <Typography variant="h6">{ingredient.food_item.name}</Typography>
+                  <Typography variant="caption">
+                    {ingredient.food_item.calories}kcal/100g
+                  </Typography>
+                </Grid>
+                <Grid size={6}>
+                  <Controller
+                    name={`ingredients.${index}.amount`}
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        error={Boolean(errors.ingredients?.[index]?.amount)}
+                        helperText={errors.ingredients?.[index]?.amount?.message}
+                        label="Amount"
+                        variant="outlined"
+                        fullWidth
+                        slotProps={{
+                          input: {
+                            endAdornment: <InputAdornment position="end">g</InputAdornment>,
+                          },
+                        }}
+                      />
+                    )}
                   />
-                  of {ingredient.food_item?.name}
-                </Typography>
-              </Card>
-            </Grid>
-          ))}
+                </Grid>
+              </Grid>
+            ))
+          )}
         </Grid>
-      </Box>
+      </Paper>
     );
   } else {
     return (
