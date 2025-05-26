@@ -1,41 +1,60 @@
-import { useNavigate } from "react-router";
-import FoodItemForm from "../components/FoodItemForm";
+import { useLocation, useNavigate } from "react-router";
 import usePost from "../hooks/usePost";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import MealForm from "../components/MealForm";
-import type { SubmitHandler } from "react-hook-form";
 import useFetch from "../hooks/useFetch";
-
-interface IMealFormInput {
-  calories: number;
-  food_amount: number;
-  food_item_id: number;
-  food_collection_id: number;
-  mealtime_id: number;
-}
-
+import FoodList from "../components/FoodList";
+import dayjs from "dayjs";
+import {type MealFormSchema } from "../components/MealForm";
 
 export default function AddMeal() {
+  const {state} = useLocation();
+  if(state) {
+    var {selectedDate}:{selectedDate: string} = state;
+  }
+  else {
+    var selectedDate = dayjs().format("YYYY-MM-DD")
+  }
+  const [isSelectingFood, setIsSelectingFood] = useState<boolean>(true);
+  const [searchUrl, setSearchUrl] = useState<string>("")
+  const [foodType, setFoodType] = useState<string>("item");
+
   const navigate = useNavigate();
-  const {data: foodData, loading} = useFetch<Food>("/fooditems/1");
+
+  const {data: foodData} = useFetch<Food>(searchUrl);
   const { post, error: postError, data } = usePost();
 
-  function handleSubmit(data: IMealFormInput) {
+  function handleSubmit(data: MealFormSchema) {
     post("/meals", data);
+  }
+
+  function handleSelectProduct(id: number, type: string) {
+    setFoodType(type);
+    if(type === "item") {
+      setSearchUrl(`/fooditems/${id}`);
+    } else {
+      setSearchUrl(`/foodcollections/${id}`);
+    }
+    setIsSelectingFood(false);
   }
 
   useEffect(
     function () {
       // If there was data received in response, we succesfully added the product and can navigate away
       if (data) {
-        navigate("/meals");
+        navigate("/meals", {state: {selectedDate: selectedDate}});
       }
     },
     [data]
   );
 
-  if (foodData)
-  return (
-    <MealForm onSubmit={handleSubmit} food_data={foodData} buttonText="Add meal" responseError={postError} />
-  );
+  if (isSelectingFood) {
+    return <FoodList allowAdd={false} onSelectProduct={handleSelectProduct} foodItemsOnly={false}/>
+  }
+
+  if (foodData) {
+    return (
+      <MealForm onSubmit={handleSubmit} created_at={selectedDate} food_data={{...foodData, type: foodType}} buttonText="Add meal" responseError={postError} />
+    );
+  }
 }
