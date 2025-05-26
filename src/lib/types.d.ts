@@ -1,59 +1,58 @@
 type FoodItem = {
-	id: number | undefined,
-	name: string | undefined,
-	calories: number | undefined,
-	fats: number | undefined,
-	carbs: number | undefined,
-	protein: number | undefined,
-	portion_weight: number | undefined,
-	barcode: string | undefined,
-	is_locked?: boolean | undefined,
-	creator_id?: number | undefined
-}
+  id: number;
+  name: string;
+  calories: number;
+  fats: number;
+  carbs: number;
+  protein: number;
+  portion_weight: number;
+  barcode: string;
+  edit_locked: boolean;
+  creator_id: number;
+};
 
 type Food = {
-	type: string | undefined,
-	id: number | undefined,
-	name: string | undefined,
-	calories: number | undefined,
-	fats: number | undefined,
-	carbs: number | undefined,
-	protein: number | undefined,
-	portion_weight: number | undefined,
-	barcode: string | undefined,
-	is_locked?: boolean | undefined,
-	creator_id?: number | undefined
-}
+  type: string;
+  id: number;
+  name: string;
+  calories: number;
+  fats: number;
+  carbs: number;
+  protein: number;
+  portion_weight: number;
+  barcode: string;
+  edit_locked: boolean;
+  creator_id: number;
+};
 
 type Ingredient = {
-	food_item_id: number,
-	amount: number,
-    food_collection_id?: number,
-    food_item?: FoodItem
-}
+  food_item_id: number;
+  amount: number;
+  food_collection_id: number;
+  food_item: FoodItem;
+};
 
 type FoodCollection = {
-	id?: number | undefined,
-	name: string | undefined,
-	calories: number | undefined,
-	fats: number | undefined,
-	carbs: number | undefined,
-	protein: number | undefined,
-	portion_weight: number | undefined,
-	barcode?: string | undefined,
-	is_locked?: boolean | undefined,
-	creator_id?: number | undefined
-	ingredients: Ingredient[] | undefined
-}
+  id: number;
+  name: string;
+  calories: number;
+  fats: number;
+  carbs: number;
+  protein: number;
+  portion_weight: number;
+  edit_locked: boolean;
+  creator_id: number;
+  ingredients: Ingredient[];
+};
 
 type Meal = {
-	id?: number | undefined,
-	food_amount: number | undefined,
-	calories: number | undefined,
-	food_item_id?: number | undefined,
-	food_collection_id?: number | undefined,
-	created_at: Date | undefined,
-	food_item?: FoodItem | undefined,
-	food_collection?: FoodCollection | undefined,
-	mealtime_id?: number | undefined
-}
+  id: number;
+  food_amount: number;
+  calories: number;
+  food_item_id: number;
+  food_collection_id: number;
+  created_at: Date;
+  food_item: FoodItem;
+  food_collection: FoodCollection;
+  mealtime_id: number;
+};
