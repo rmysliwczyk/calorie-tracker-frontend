@@ -61,14 +61,8 @@ export default function FoodCollectionInfo(props: FoodCollectionInfoProps) {
       <Grid size={12} sx={{ padding: "10px" }}>
         <Divider variant="middle" />
       </Grid>
-      <Grid container size={"grow"} sx={{ padding: "10px" }}>
-        <Grid size={12}>
-          <Typography variant="h5">Barcode</Typography>
-        </Grid>
-        <Grid size={12}>{props.data.barcode}</Grid>
-      </Grid>
       {(props.onDelete || props.onEdit) && (
-        <Grid container size={5} sx={{ padding: "10px", alignItems: "center" }}>
+        <Grid container size={12} sx={{ padding: "10px", alignItems: "center" }}>
           {props.onEdit && (
             <Grid size={"grow"}>
               <EditSquareIcon color="info" onClick={props.onEdit}/>

@@ -1,5 +1,6 @@
 type FoodItem = {
   id: number;
+  brand: string;
   name: string;
   calories: number;
   fats: number;
@@ -7,12 +8,13 @@ type FoodItem = {
   protein: number;
   portion_weight: number;
   barcode: string;
-  edit_locked: boolean;
-  creator_id: number;
+  edit_locked?: boolean;
+  creator_id?: number;
 };
 
 type Food = {
   type: string;
+  brand?: string;
   id: number;
   name: string;
   calories: number;
@@ -20,9 +22,9 @@ type Food = {
   carbs: number;
   protein: number;
   portion_weight: number;
-  barcode: string;
-  edit_locked: boolean;
-  creator_id: number;
+  barcode?: string;
+  edit_locked?: boolean;
+  creator_id?: number;
 };
 
 type Ingredient = {
@@ -51,7 +53,7 @@ type Meal = {
   calories: number;
   food_item_id: number;
   food_collection_id: number;
-  created_at: Date;
+  created_at: string;
   food_item: FoodItem;
   food_collection: FoodCollection;
   mealtime_id: number;

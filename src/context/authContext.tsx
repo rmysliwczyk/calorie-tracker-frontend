@@ -83,7 +83,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.setItem("userId", receivedJsonUser.id);
         setIsAdmin(receivedJsonUser.is_admin);
         localStorage.setItem("isAdmin", receivedJsonUser.is_admin);
-        navigate("/fooditems");
+        navigate("/meals");
       } else {
         throw new Error("No token received in response")
       }

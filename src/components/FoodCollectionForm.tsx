@@ -49,6 +49,7 @@ export default function FoodCollectionForm(props: FoodCollectionFormProps) {
     formState: { errors },
     getValues,
     setValue,
+    trigger,
     setError
   } = useForm<FoodCollectionFormSchema>({
     defaultValues: {
@@ -102,7 +103,7 @@ export default function FoodCollectionForm(props: FoodCollectionFormProps) {
     };
 
     for (const ingredient of ingredients) {
-      const amount = new Decimal(ingredient.amount || 0);
+      const amount = new Decimal(Number(ingredient.amount) || 0);
       const multiplier = amount.div(100);
 
       nutritionalValues.calories = nutritionalValues.calories.plus(
@@ -303,6 +304,10 @@ export default function FoodCollectionForm(props: FoodCollectionFormProps) {
                     render={({ field }) => (
                       <TextField
                         {...field}
+                        onInput={(e) => {
+                          field.onChange(e)
+                          trigger(`ingredients.${index}.amount`)
+                        }}
                         error={Boolean(errors.ingredients?.[index]?.amount)}
                         helperText={errors.ingredients?.[index]?.amount?.message}
                         label="Amount"

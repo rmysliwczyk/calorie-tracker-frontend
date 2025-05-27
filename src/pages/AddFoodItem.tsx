@@ -15,7 +15,7 @@ export default function AddFoodItem() {
     function () {
       // If there was data received in response, we succesfully added the product and can navigate away
       if (data) {
-        navigate("/fooditems");
+        navigate("/food");
       }
     },
     [data]

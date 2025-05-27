@@ -18,11 +18,11 @@ const mealFormSchema = z.object({
   calories: z.coerce.number({
     required_error: "Calories are required",
     invalid_type_error: "Calories must be a number",
-  }).gte(0.1),
+  }).gte(0),
   food_amount: z.coerce.number({
     required_error: "Food amount is required",
     invalid_type_error: "Food amount must be a number",
-  }).gte(0.1),
+  }).gte(0),
   food_item_id: z.optional(z.number()),
   food_collection_id: z.optional(z.number()),
   mealtime_id: z.number(),
@@ -65,7 +65,10 @@ export default function MealForm(props: MealFormProps) {
   useEffect(
     function () {
       if (activeField.current === "food_amount") {
-        const value = Number(((food_amount / 100) * props.food_data.calories).toFixed(2));
+        let value = Number(((food_amount / 100) * props.food_data.calories).toFixed(2));
+        if(!isFinite(value)) {
+          value = 0;
+        }
         setValue("calories", isNaN(value) ? 0 : Number(value));
         trigger();
       }
@@ -76,7 +79,10 @@ export default function MealForm(props: MealFormProps) {
   useEffect(
     function () {
       if (activeField.current === "calories") {
-        const value = Number(((calories / props.food_data.calories) * 100).toFixed(2));
+        let value = Number(((calories / props.food_data.calories) * 100).toFixed(2));
+        if(!isFinite(value)) {
+          value = 0;
+        }
         setValue("food_amount", isNaN(value) ? 0 : Number(value));
         trigger();
       }
@@ -99,7 +105,7 @@ export default function MealForm(props: MealFormProps) {
         </Grid>
       )}
       <Grid size={12}>
-        <FoodItemInfo data={props.food_data} />
+        <FoodItemInfo data={props.food_data as FoodItem} />
       </Grid>
       <Grid size={6}>
         <Controller

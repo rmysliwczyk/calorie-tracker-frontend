@@ -23,7 +23,7 @@ export default function Auth(props: { logout?: boolean } = {}) {
     try {
       event.preventDefault();
       await auth.loginAction(username, password);
-      navigate("/fooditems");
+      navigate("/meals");
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);

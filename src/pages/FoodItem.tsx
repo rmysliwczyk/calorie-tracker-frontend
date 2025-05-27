@@ -32,7 +32,7 @@ export default function FoodItem() {
     try {
       const result = await deletereq(`/fooditems/${params.fooditem_id}`);
       console.log("Deleted:", result);
-      navigate("/fooditems");
+      navigate("/food");
     } catch (err) {
       console.error("Failed to delete:", err);
     }

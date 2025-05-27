@@ -6,10 +6,11 @@ import useFetch from "../hooks/useFetch";
 import useDelete from "../hooks/useDelete";
 import usePatch from "../hooks/usePatch";
 import { useNavigate } from "react-router";
-import FoodItemForm from "../components/FoodItemForm";
-import FoodItemInfo from "../components/FoodItemInfo";
 import Todo from "./Todo";
 import FoodCollectionInfo from "../components/FoodCollectionInfo";
+import FoodCollectionForm, {
+  type FoodCollectionFormSchema,
+} from "../components/FoodCollectionForm";
 
 export default function FoodCollection() {
   const params = useParams();
@@ -40,7 +41,7 @@ export default function FoodCollection() {
     }
   }
 
-  async function handleEdit(formData: FoodItem) {
+  async function handleEdit(formData: FoodCollectionFormSchema) {
     try {
       await patch(`/foodcollections/${params.foodcollection_id}`, formData);
       refetch();
@@ -68,8 +69,12 @@ export default function FoodCollection() {
     return (
       <Grid>
         {editMode ? (
-          /*Here will go the FormCollectionForm*/
-          <Todo />
+          <FoodCollectionForm
+            buttonText={"UPDATE RECIPE"}
+            onSubmit={handleEdit}
+            initialData={fetchData}
+            responseError={errorPatch}
+          />
         ) : fetchData.creator_id === auth.userId || auth.isAdmin ? (
           <FoodCollectionInfo data={fetchData} onDelete={handleDelete} onEdit={editModeToggle} />
         ) : (

@@ -7,17 +7,19 @@ import Typography from "@mui/material/Typography";
 import Menu from "@mui/material/Menu";
 import MenuIcon from "@mui/icons-material/Menu";
 import Container from "@mui/material/Container";
-import Avatar from "@mui/material/Avatar";
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-import { Outlet, useNavigate } from "react-router";
+import { Outlet, useLocation, useNavigate } from "react-router";
 import { Grid } from "@mui/material";
+import { useAuth } from "../context/authContext";
 
 const pages = [
   { name: "Meals", url: "/meals" },
-  { name: "Food Items", url: "/fooditems" },
+  { name: "Food Items", url: "/food" },
   { name: "About", url: "/about" },
+  { name: "Add recipe", url: "/foodcollections/add"}
 ];
 const settings = [
   { name: "Profile", url: "/profile" },
@@ -26,6 +28,19 @@ const settings = [
 
 function ResponsiveAppBar() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const auth = useAuth();
+
+  React.useEffect(function() {
+    if(location.pathname == "/") {
+        if (auth.token) {
+          navigate("/meals");
+        }
+        else {
+          navigate("/login");
+        }
+      }
+  },[location])
 
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
@@ -49,7 +64,7 @@ function ResponsiveAppBar() {
 
   return (
     <>
-      <AppBar position="static" sx={{ mb: "30px", width: "100vw" }}>
+      <AppBar position="sticky" sx={{ mb: "30px", width: "100vw" }}>
         <Container maxWidth="xl">
           <Toolbar disableGutters>
             <Typography
@@ -62,9 +77,7 @@ function ResponsiveAppBar() {
               sx={{
                 mr: 2,
                 display: { xs: "none", md: "flex" },
-                fontFamily: "sans-serif",
                 fontWeight: 700,
-                letterSpacing: ".3rem",
                 color: "inherit",
                 textDecoration: "none",
               }}
@@ -120,9 +133,7 @@ function ResponsiveAppBar() {
                 mr: 2,
                 display: { xs: "flex", md: "none" },
                 flexGrow: 1,
-                fontFamily: "sans-serif",
                 fontWeight: 700,
-                letterSpacing: ".3rem",
                 color: "inherit",
                 textDecoration: "none",
               }}
@@ -144,9 +155,9 @@ function ResponsiveAppBar() {
             </Box>
             <Box sx={{ flexGrow: 0 }}>
               <Tooltip title="Open settings">
-                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-                </IconButton>
+                <Box onClick={handleOpenUserMenu}>
+                  <AccountCircleIcon fontSize="large"/>
+                </Box>
               </Tooltip>
               <Menu
                 sx={{ mt: "45px" }}

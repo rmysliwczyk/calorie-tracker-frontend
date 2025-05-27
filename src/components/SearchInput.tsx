@@ -23,17 +23,19 @@ export default function SearchInput(props: SearchInputProps) {
           }}
         />
       </Grid>
-      <Grid size={2}>
-        <Button
-          sx={{ height: "55px" }}
-          onClick={function () {
-            props.onAddNavigation();
-          }}
-        >
-          Add
-        </Button>
-      </Grid>
-      <Grid size={2}>
+      {props.allowAdd &&
+        <Grid size={2}>
+          <Button
+            sx={{ height: "55px" }}
+            onClick={function () {
+              props.onAddNavigation();
+            }}
+          >
+            Add
+          </Button>
+        </Grid>
+      }
+      <Grid size={"grow"}>
         <Button
           sx={{ height: "55px" }}
           onClick={function () {

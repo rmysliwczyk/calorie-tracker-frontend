@@ -15,19 +15,31 @@ export default function FoodItemForm(props: FoodItemFormProps) {
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
 
-  const [inputs, setInputs] = useState<FoodItem>({
-    id: props.initialData?.id,
-    name: props.initialData?.name,
-    calories: props.initialData?.calories,
-    fats: props.initialData?.fats,
-    carbs: props.initialData?.carbs,
-    protein: props.initialData?.protein,
-    portion_weight: props.initialData?.portion_weight,
-    barcode: props.initialData?.barcode,
+  const [inputs, setInputs] = useState<FoodItem>(props.initialData ? {
+    id: props.initialData.id,
+    name: props.initialData.name,
+    brand: props.initialData.brand,
+    calories: props.initialData.calories,
+    fats: props.initialData.fats,
+    carbs: props.initialData.carbs,
+    protein: props.initialData.protein,
+    portion_weight: props.initialData.portion_weight,
+    barcode: props.initialData.barcode
+  } : {
+    id: 0,
+    name: "",
+    brand: "",
+    calories: "" as unknown as number,
+    fats: "" as unknown as number,
+    carbs: "" as unknown as number,
+    protein: "" as unknown as number,
+    portion_weight: "" as unknown as number,
+    barcode: ""
   });
 
   const [errors, setErrors] = useState({
     name: "",
+    brand: "",
     calories: "",
     fats: "",
     carbs: "",
@@ -92,7 +104,8 @@ export default function FoodItemForm(props: FoodItemFormProps) {
         onSubmit={function (event) {
           event.preventDefault();
           if (!containsErrors) {
-            props.onSubmit(inputs);
+            const formData = Object.fromEntries(Object.entries(inputs).filter(([_, value]) => value !== ""))
+            props.onSubmit(formData as FoodItem);
           } else {
             setAlertMessage("Form contains errors");
           }
@@ -100,8 +113,11 @@ export default function FoodItemForm(props: FoodItemFormProps) {
         sx={{ display: "flex", alignItems: "center" }}
         spacing={2}
       >
-        <Grid size={12}>
+        <Grid size={8}>
           <TextField id="name" name="name" label="Name" variant="outlined" value={inputs.name} onChange={handleChange} fullWidth />
+        </Grid>
+        <Grid size={4}>
+          <TextField id="brand" name="brand" label="Brand" variant="outlined" value={inputs.brand} onChange={handleChange} fullWidth />
         </Grid>
         <Grid size={6}>
           <TextField
