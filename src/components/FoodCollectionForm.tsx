@@ -6,6 +6,8 @@ import { Decimal } from "decimal.js";
 import { Controller, useForm, useWatch, type SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import DeleteIcon from '@mui/icons-material/Delete';
+import { toast } from "react-toastify";
 
 interface FoodCollectionFormProps {
   buttonText: string;
@@ -47,6 +49,7 @@ export default function FoodCollectionForm(props: FoodCollectionFormProps) {
     formState: { errors },
     getValues,
     setValue,
+    setError
   } = useForm<FoodCollectionFormSchema>({
     defaultValues: {
       name: props.initialData?.name || "",
@@ -293,7 +296,7 @@ export default function FoodCollectionForm(props: FoodCollectionFormProps) {
                     {ingredient.food_item.calories}kcal/100g
                   </Typography>
                 </Grid>
-                <Grid size={6}>
+                <Grid size={4}>
                   <Controller
                     name={`ingredients.${index}.amount`}
                     control={control}
@@ -312,6 +315,19 @@ export default function FoodCollectionForm(props: FoodCollectionFormProps) {
                         }}
                       />
                     )}
+                  />
+                </Grid>
+                <Grid size={2}>
+                  <DeleteIcon onClick={function() {
+                    const currentIngredients = getValues("ingredients");
+                    if (currentIngredients.length > 1) {
+                      const updatedIngredients = currentIngredients.filter((ing) => ing.food_item_id !== ingredient.food_item_id);
+                      setValue("ingredients", updatedIngredients, {shouldValidate: true});
+                    }
+                    else {
+                      toast.warn("You can't remove the last ingredient", {autoClose: 2000})
+                    }
+                    }}
                   />
                 </Grid>
               </Grid>
