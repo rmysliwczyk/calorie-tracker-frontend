@@ -7,7 +7,10 @@ import mkcert from 'vite-plugin-mkcert'
 export default defineConfig({
   plugins: [mkcert(), react()],
   server: {
-    https: true,
-    host: true
+    port: 8081,
+    https: false,
+    host: "0.0.0.0",
+    origin: "http://0.0.0.0:8081",
+    allowedHosts: ["ct.mysliwczykrafal.webredirect.org", "www.ct.mysliwczykrafal.webredirect.org"]
   }
 })
