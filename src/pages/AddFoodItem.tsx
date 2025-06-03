@@ -8,7 +8,7 @@ export default function AddFoodItem() {
   const { post, error: postError, data } = usePost();
 
   function handleSubmit(formData: FoodItem) {
-    post("/fooditems", formData);
+    post("/fooditems/", formData);
   }
 
   useEffect(

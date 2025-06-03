@@ -8,7 +8,7 @@ export default function AddFoodCollection() {
   const { post, error: postError, data } = usePost();
 
   function handleSubmit(formData: FoodCollectionFormSchema) {
-    post("/foodcollections", formData);
+    post("/foodcollections/", formData);
   }
 
   useEffect(
