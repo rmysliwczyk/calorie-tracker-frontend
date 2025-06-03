@@ -25,7 +25,7 @@ export default function AddMeal() {
   const { post, error: postError, data } = usePost();
 
   function handleSubmit(data: MealFormSchema) {
-    post("/meals", data);
+    post("/meals/", data);
   }
 
   function handleSelectProduct(id: number, type: string) {
