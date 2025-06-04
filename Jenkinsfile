@@ -32,7 +32,7 @@ pipeline {
 
         stage('Run New Container') {
             steps {
-                sh 'docker run -d --name \"calorie-tracker-frontend\" -p 8081:8081 \"calorie-tracker-frontend\"'
+                sh 'docker run -d --name \"calorie-tracker-frontend\" -p 8081:8081 \"calorie-tracker-frontend\" --restart always'
             }
         }
     }
