@@ -32,11 +32,9 @@ export default function MealsList(props: MealsListProps) {
             alignItems={"center"}
             sx={{height: "70px"}}
           >
-            <Grid size={11} container sx={{alignItems: "center", justifyItems: "center"}}onClick={function() { props.onSelectMeal(element.id) }}>
+            <Grid size={11} container sx={{alignItems: "center", justifyItems: "center"}} onClick={function() { props.onSelectMeal(element.id) }}>
               <Grid size={4}>
-                <Typography variant="h6">
-                  {element.food_item?.name || element.food_collection?.name}{" "}
-                </Typography>
+                {element.food_item?.name || element.food_collection?.name}{" "}
               </Grid>
               <Grid size={4}>
                 <Typography variant="caption">{element.food_amount} g</Typography>
