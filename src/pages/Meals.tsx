@@ -23,6 +23,7 @@ export default function Meals() {
   const [selectMultiple, setSelectMultiple] = useState<boolean>(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [searchUrl, setSearchUrl] = useState<string>(`/meals/?selected_date=${date?.format("YYYY-MM-DD")}`);
+  const [dailyCaloriesConsumed, setDailyCaloriesConsumed] = useState<number>(0);
   const {patch, error: patchError} = usePatch()
   const { deletereq } = useDelete();
   const {
@@ -51,16 +52,24 @@ export default function Meals() {
     deletereq(`/meals/${mealId}`);
     refetch();
   }
+  useEffect(function() {
+    setDailyCaloriesConsumed(0);
+    if(data) {
+      data.forEach(function(dataEntry) {
+        setDailyCaloriesConsumed((prevValue) => (prevValue + Number(dataEntry.calories)))
+      })
+    }
+  }, [data])
 
-async function confirmShare() {
-  let payload: any = []
-  selectedIds.forEach((mealId) => payload.push({id: mealId, is_shared: true}));
-  console.log(payload)
-  patch(`/meals/update-many`, payload)
-  const idsParam = selectedIds.join(",");
-  toast.info(`Pass this link to your friend!: https://${window.location.host}/addshared?ids=${idsParam}`, {autoClose: false});
-  console.log(selectedIds);
-}
+  async function confirmShare() {
+    let payload: any = []
+    selectedIds.forEach((mealId) => payload.push({id: mealId, is_shared: true}));
+    console.log(payload)
+    patch(`/meals/update-many`, payload)
+    const idsParam = selectedIds.join(",");
+    toast.info(`Pass this link to your friend!: https://${window.location.host}/addshared?ids=${idsParam}`, {autoClose: false});
+    console.log(selectedIds);
+  }
 
   return fetchMealsError ? (
     <Alert severity="error">Couldn't load meals data. Error: {fetchMealsError}</Alert>
@@ -84,6 +93,9 @@ async function confirmShare() {
         {selectMultiple ? <CheckCircleIcon onClick={confirmShare} />
           :<ShareIcon onClick={function() {setSelectMultiple((prevState) => !prevState)}}/>
         }
+      </Grid>
+      <Grid size={12}>
+        Calories consumed: {dailyCaloriesConsumed.toFixed(2)}
       </Grid>
       <Grid size={12}>
         <Button onClick={handleAddMeal}>Add meal</Button>
