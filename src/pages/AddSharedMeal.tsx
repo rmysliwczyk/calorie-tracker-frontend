@@ -2,7 +2,7 @@ import { useNavigate, useSearchParams } from "react-router";
 import useFetch from "../hooks/useFetch";
 import usePost from "../hooks/usePost";
 import { useEffect, useState } from "react";
-import { Alert } from "@mui/material";
+import { Alert, Button, Grid} from "@mui/material";
 import dayjs from "dayjs";
 import type { Dayjs } from "dayjs";
 import { LocalizationProvider, MobileDatePicker } from "@mui/x-date-pickers";
@@ -28,22 +28,26 @@ export default function AddSharedMeal() {
             setConfirmedAdd(true)
             navigate("/meals")
         }
-    }, [data, selectedDate]);
+    }, [data, selectedDate, confirmedAdd]);
 
     if (confirmedAdd === false) {
-        return(<>
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <MobileDatePicker
-            value={selectedDate}
-            onChange={function (newValue) {
-              setSelectedDate(newValue);
-              setConfirmedAdd(true)
-            }}
-            sx={{width: "80%"}}
-            label="Select day"
-          />
-        </LocalizationProvider>
-        </>
+        return(<Grid container>
+          <Grid size={12}>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <MobileDatePicker
+              value={selectedDate}
+              onChange={function (newValue) {
+                setSelectedDate(newValue);
+              }}
+              sx={{width: "80%"}}
+              label="Select day"
+            />
+          </LocalizationProvider>
+        </Grid>
+        <Grid size={12}>
+          <Button onClick={function() {setConfirmedAdd(true)}}>Add meal</Button>
+        </Grid>
+        </Grid>
         )
     }
     return null;
