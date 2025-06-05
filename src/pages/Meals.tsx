@@ -80,6 +80,7 @@ export default function Meals() {
       <Grid size={11}>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <MobileDatePicker
+            format="YYYY-MM-DD"
             value={date}
             onChange={function (newValue) {
               setDate(newValue);
