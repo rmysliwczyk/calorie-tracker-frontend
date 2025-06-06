@@ -11,9 +11,11 @@ export default function AddMeal() {
   const {state} = useLocation();
   if(state) {
     var {selectedDate}:{selectedDate: string} = state;
+    var {mealtime_id}:{mealtime_id: number} = state;
   }
   else {
     var selectedDate = dayjs().format("YYYY-MM-DD")
+    var mealtime_id = 1;
   }
   const [isSelectingFood, setIsSelectingFood] = useState<boolean>(true);
   const [searchUrl, setSearchUrl] = useState<string>("")
@@ -54,7 +56,7 @@ export default function AddMeal() {
 
   if (foodData) {
     return (
-      <MealForm onSubmit={handleSubmit} created_at={selectedDate} food_data={{...foodData, type: foodType}} buttonText="Add meal" responseError={postError} />
+      <MealForm onSubmit={handleSubmit} created_at={selectedDate} mealtime_id={mealtime_id} food_data={{...foodData, type: foodType}} buttonText="Add meal" responseError={postError} />
     );
   }
 }

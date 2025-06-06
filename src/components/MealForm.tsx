@@ -12,6 +12,7 @@ interface MealFormProps {
   initialData?: MealFormSchema;
   responseError?: string | null;
   created_at: string;
+  mealtime_id?: number;
 }
 
 const mealFormSchema = z.object({
@@ -46,7 +47,7 @@ export default function MealForm(props: MealFormProps) {
       food_amount: props.initialData?.food_amount || ("" as unknown as number),
       food_item_id: props.food_data.id || 0,
       food_collection_id: props.food_data.id || 0,
-      mealtime_id: props.initialData?.mealtime_id || 1,
+      mealtime_id: props.mealtime_id || 1,
       created_at: props.created_at,
     },
     resolver: zodResolver(mealFormSchema),
