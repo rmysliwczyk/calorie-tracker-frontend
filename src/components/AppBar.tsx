@@ -19,7 +19,6 @@ const pages = [
   { name: "Meals", url: "/meals" },
   { name: "Food Items", url: "/food" },
   { name: "About", url: "/about" },
-  { name: "Add recipe", url: "/foodcollections/add"}
 ];
 const settings = [
   { name: "Profile", url: "/profile" },
@@ -80,6 +79,7 @@ function ResponsiveAppBar() {
                 fontWeight: 700,
                 color: "inherit",
                 textDecoration: "none",
+		cursor: "pointer"
               }}
             >
               Calorie Tracker
@@ -136,6 +136,7 @@ function ResponsiveAppBar() {
                 fontWeight: 700,
                 color: "inherit",
                 textDecoration: "none",
+		cursor: "pointer"	
               }}
             >
               Calorie Tracker

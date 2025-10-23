@@ -12,8 +12,6 @@ import { ToastContainer } from "react-toastify";
 import Meals from "./pages/Meals";
 import Profile from "./pages/Profile";
 import Todo from "./pages/Todo";
-import FoodCollection from "./pages/FoodCollection";
-import AddFoodCollection from "./pages/AddFoodCollection";
 import AddMeal from "./pages/AddMeal";
 import Meal from "./pages/Meal";
 import AddSharedMeal from "./pages/AddSharedMeal";
@@ -36,8 +34,6 @@ function App() {
               <Route path="/food" element={<Food />} />
               <Route path="/fooditems/add" element={<AddFoodItem />} />
               <Route path="/fooditems/:fooditem_id" element={<FoodItem />} />
-              <Route path="/foodcollections/:foodcollection_id" element={<FoodCollection />} />
-              <Route path="/foodcollections/add" element={<AddFoodCollection />} />
               <Route path="/addshared" element={<AddSharedMeal />} />
             </Route>
           </Route>

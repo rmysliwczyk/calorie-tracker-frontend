@@ -28,11 +28,7 @@ type FoodListProps = {
 export default function FoodList(props: FoodListProps) {
   const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState("");
-  const [searchUrl, setSearchUrl] = useState<string>(
-    props.foodItemsOnly
-      ? `/fooditems/?offset=0&limit=100&name=`
-      : `/food/combined/?offset=0&limit=100&name=`
-  );
+  const [searchUrl, setSearchUrl] = useState<string>(`/fooditems/?offset=0&limit=100&name=`);
   const { data, error } = useFetch<Food[]>(searchUrl);
   const [searchInProgress, setSearchInProgress] = useState(false);
   const [isScannerOpen, setIsScannerOpen] = useState<boolean>(false);
@@ -41,11 +37,7 @@ export default function FoodList(props: FoodListProps) {
     function () {
       setSearchInProgress(true);
       const timeOut = setTimeout(async function () {
-        setSearchUrl(
-          props.foodItemsOnly
-            ? `/fooditems/?offset=0&limit=100&name=${searchValue}`
-            : `/food/combined/?offset=0&limit=100&name=${searchValue}`
-        );
+        setSearchUrl(`/fooditems/?offset=0&limit=100&name=${searchValue}`);
       }, 1000);
 
       return function () {
@@ -73,11 +65,7 @@ export default function FoodList(props: FoodListProps) {
   }
 
   function handleScanSuccess(decodedText: string) {
-    setSearchUrl(
-      props.foodItemsOnly
-        ? `/fooditems/?offset=0&limit=100&barcode=${decodedText}`
-        : `/food/combined/?offset=0&limit=100&barcode=${decodedText}`
-    );
+    setSearchUrl(`/fooditems/?offset=0&limit=100&barcode=${decodedText}`);
     setIsScannerOpen(false);
   }
 
@@ -119,7 +107,7 @@ export default function FoodList(props: FoodListProps) {
                       }
                     }}
                   >
-                    <ListItemText sx={{ textAlign: "center" }}>
+                    <ListItemText sx={{ textAlign: "center", cursor: "pointer" }}>
                       <Typography variant="h5">{element.name}</Typography>
                       <Typography>{element.calories} kcal/100g</Typography>
                     </ListItemText>
