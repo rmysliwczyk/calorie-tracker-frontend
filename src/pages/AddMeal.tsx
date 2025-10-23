@@ -19,7 +19,6 @@ export default function AddMeal() {
   }
   const [isSelectingFood, setIsSelectingFood] = useState<boolean>(true);
   const [searchUrl, setSearchUrl] = useState<string>("")
-  const [foodType, setFoodType] = useState<string>("item");
 
   const navigate = useNavigate();
 
@@ -30,13 +29,8 @@ export default function AddMeal() {
     post("/meals/", data);
   }
 
-  function handleSelectProduct(id: number, type: string) {
-    setFoodType(type);
-    if(type === "item") {
-      setSearchUrl(`/fooditems/${id}`);
-    } else {
-      setSearchUrl(`/foodcollections/${id}`);
-    }
+  function handleSelectProduct(id: number) {
+    setSearchUrl(`/fooditems/${id}`);
     setIsSelectingFood(false);
   }
 
@@ -56,7 +50,7 @@ export default function AddMeal() {
 
   if (foodData) {
     return (
-      <MealForm onSubmit={handleSubmit} created_at={selectedDate} mealtime_id={mealtime_id} food_data={{...foodData, type: foodType}} buttonText="Add meal" responseError={postError} />
+      <MealForm onSubmit={handleSubmit} created_at={selectedDate} mealtime_id={mealtime_id} food_data={{...foodData}} buttonText="Add meal" responseError={postError} />
     );
   }
 }

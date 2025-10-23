@@ -24,8 +24,7 @@ const mealFormSchema = z.object({
     required_error: "Food amount is required",
     invalid_type_error: "Food amount must be a number",
   }).gte(0),
-  food_item_id: z.optional(z.number()),
-  food_collection_id: z.optional(z.number()),
+  food_item_id: z.number(),
   mealtime_id: z.number(),
   created_at: z.string(),
 });
@@ -46,7 +45,6 @@ export default function MealForm(props: MealFormProps) {
       calories: props.initialData?.calories || ("" as unknown as number),
       food_amount: props.initialData?.food_amount || ("" as unknown as number),
       food_item_id: props.food_data.id || 0,
-      food_collection_id: props.food_data.id || 0,
       mealtime_id: props.mealtime_id || 1,
       created_at: props.created_at,
     },
@@ -57,11 +55,6 @@ export default function MealForm(props: MealFormProps) {
 
   const food_amount = watch("food_amount");
   const calories = watch("calories");
-
-  useEffect(function () {
-    if (props.food_data.type === "item") unregister("food_collection_id");
-    else unregister("food_item_id");
-  }, []);
 
   useEffect(
     function () {
