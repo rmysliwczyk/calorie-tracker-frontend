@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        BACKEND_HOST = "https://ct.mysliwczykrafal.webredirect.org/api"
+        BACKEND_HOST = "https://calorie-tracker-api.mysliwczykrafal.webredirect.org/api"
     }
 
     stages {
